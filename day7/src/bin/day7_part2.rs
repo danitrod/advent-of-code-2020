@@ -20,7 +20,7 @@ fn held_quantity(name: &str, map: &BagMap, debug: &mut String) -> usize {
 }
 
 fn main() -> Result<(), Error> {
-  let input = fs::read_to_string("input")?;
+  let input = fs::read_to_string("day7/input")?;
   let mut debug = String::new();
   let count;
   let mut bags_map = BagMap::new();

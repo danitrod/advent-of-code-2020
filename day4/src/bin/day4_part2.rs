@@ -93,7 +93,7 @@ fn read_field(text: &str) -> (String, String) {
 }
 
 fn main() {
-  let input = fs::read_to_string("input").unwrap();
+  let input = fs::read_to_string("day4/input").unwrap();
   let mut valid_passports_count = 0;
   let mut valid_fields_count = 0;
 

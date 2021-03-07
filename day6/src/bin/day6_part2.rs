@@ -3,7 +3,7 @@ use std::fs;
 use std::io::Error;
 
 fn main() -> Result<(), Error> {
-  let input = fs::read_to_string("input")?;
+  let input = fs::read_to_string("day6/input")?;
   let mut debug = String::new();
   let mut count = 0;
   let mut answerees_count = 0;

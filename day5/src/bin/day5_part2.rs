@@ -39,7 +39,7 @@ fn missing(vec: Vec<usize>) -> usize {
 }
 
 fn main() -> Result<(), Error> {
-  let input = fs::read_to_string("input")?;
+  let input = fs::read_to_string("day5/input")?;
   let mut debug = String::new();
   let mut seats = Vec::<usize>::new();
 
