@@ -54,53 +54,44 @@ impl Grid {
 
     /// Counts the number of free adjacent cells, given a cell
     pub fn occupied_adjacent_cells_count(&self, cell: &GridCell) -> usize {
-        let hits_x_start = cell.position.0 == 0;
-        let hits_x_end = cell.position.0 == self.cells.len() - 1;
-        let hits_y_start = cell.position.1 == 0;
-        let hits_y_end = cell.position.1 == self.cells[0].len() - 1;
-
         let mut occupied_count = 0;
 
-        if !hits_x_start {
-            if !hits_y_start {
-                if self.cells[cell.position.0 - 1][cell.position.1 - 1].value == Seat::Taken {
-                    occupied_count += 1;
-                }
-            }
-            if self.cells[cell.position.0 - 1][cell.position.1].value == Seat::Taken {
-                occupied_count += 1;
-            }
-            if !hits_y_end {
-                if self.cells[cell.position.0 - 1][cell.position.1 + 1].value == Seat::Taken {
-                    occupied_count += 1;
-                }
-            }
-        }
+        let search_rules: Vec<(isize, isize)> = vec![
+            (-1, -1),
+            (-1, 0),
+            (-1, 1),
+            (0, -1),
+            (0, 1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+        ];
 
-        if !hits_x_end {
-            if !hits_y_start {
-                if self.cells[cell.position.0 + 1][cell.position.1 - 1].value == Seat::Taken {
-                    occupied_count += 1;
-                }
-            }
-            if self.cells[cell.position.0 + 1][cell.position.1].value == Seat::Taken {
-                occupied_count += 1;
-            }
-            if !hits_y_end {
-                if self.cells[cell.position.0 + 1][cell.position.1 + 1].value == Seat::Taken {
-                    occupied_count += 1;
-                }
-            }
-        }
+        for rule in search_rules {
+            let mut next_pos = (cell.position.0 as isize, cell.position.1 as isize);
+            loop {
+                next_pos = (next_pos.0 + rule.0, next_pos.1 + rule.1);
 
-        if !hits_y_end {
-            if self.cells[cell.position.0][cell.position.1 + 1].value == Seat::Taken {
-                occupied_count += 1;
-            }
-        }
-        if !hits_y_start {
-            if self.cells[cell.position.0][cell.position.1 - 1].value == Seat::Taken {
-                occupied_count += 1;
+                if next_pos.0 < 0
+                    || next_pos.0 > self.cells.len() as isize - 1
+                    || next_pos.1 < 0
+                    || next_pos.1 > self.cells[0].len() as isize - 1
+                {
+                    break;
+                }
+
+                let current_cell = &self.cells[next_pos.0 as usize][next_pos.1 as usize];
+
+                match current_cell.value {
+                    Seat::Free => {
+                        break;
+                    }
+                    Seat::Taken => {
+                        occupied_count += 1;
+                        break;
+                    }
+                    Seat::Floor => (),
+                }
             }
         }
 
@@ -155,6 +146,13 @@ fn main() -> Result<(), Error> {
         for (i, row) in grid.cells.iter().enumerate() {
             next_grid.cells.push(Vec::new());
             for (j, cell) in row.iter().enumerate() {
+                if cell.value == Seat::Floor {
+                    next_grid.cells[i].push(GridCell {
+                        position: (i, j),
+                        value: Seat::Floor,
+                    });
+                    continue;
+                }
                 let occupied_adjacent = grid.occupied_adjacent_cells_count(cell);
                 if cell.value == Seat::Free {
                     if occupied_adjacent == 0 {
@@ -169,8 +167,8 @@ fn main() -> Result<(), Error> {
                             value: Seat::Free,
                         });
                     }
-                } else if cell.value == Seat::Taken {
-                    if occupied_adjacent >= 4 {
+                } else {
+                    if occupied_adjacent >= 5 {
                         next_grid.cells[i].push(GridCell {
                             position: (i, j),
                             value: Seat::Free,
@@ -182,11 +180,6 @@ fn main() -> Result<(), Error> {
                             value: Seat::Taken,
                         });
                     }
-                } else {
-                    next_grid.cells[i].push(GridCell {
-                        position: (i, j),
-                        value: Seat::Floor,
-                    });
                 }
             }
         }
